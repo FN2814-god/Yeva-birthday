@@ -32,6 +32,12 @@ jobs:
       run: |
         pygbag --build main.py
     
+    - name: Copy assets to build
+      run: |
+        cp -r Assets build/web/
+        ls -la build/web/
+        ls -la build/web/Assets/
+    
     - name: Setup Pages
       uses: actions/configure-pages@v4
       
