@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feliz Cumpleaños Yeva</title>
+    <title>З Днем Народження Єва</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,9 +13,9 @@
         }
 
         body {
-            font-family: 'Courier New', Courier, monospace;
-            background: #11111b; /* Fondo oscuro elegante */
-            color: #cba6f7;
+            font-family: 'Press Start 2P', cursive;
+            background: #0a0a0f;
+            color: #fff;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,73 +23,233 @@
             overflow: hidden;
         }
 
+        /* Partículas de fondo */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #89b4fa;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 10s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+
+        /* Menú Principal */
+        #menu-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        #menu-screen.hidden {
+            display: none;
+        }
+
+        .menu-title {
+            font-size: 48px;
+            color: #a6e3a1;
+            text-shadow: 4px 4px 0 #1e1e2e, 0 0 20px rgba(166, 227, 161, 0.8);
+            margin-bottom: 60px;
+            text-align: center;
+            animation: titlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); text-shadow: 4px 4px 0 #1e1e2e, 0 0 20px rgba(166, 227, 161, 0.8); }
+            50% { transform: scale(1.02); text-shadow: 4px 4px 0 #1e1e2e, 0 0 40px rgba(166, 227, 161, 1); }
+        }
+
+        .menu-btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 24px;
+            padding: 20px 60px;
+            background: linear-gradient(135deg, #89b4fa, #b4befe);
+            border: none;
+            color: #1e1e2e;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            box-shadow: 0 6px 0 #6c7086, 0 8px 20px rgba(137, 180, 250, 0.4);
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 9px 0 #6c7086, 0 12px 30px rgba(137, 180, 250, 0.6);
+        }
+
+        .menu-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #6c7086, 0 4px 10px rgba(137, 180, 250, 0.4);
+        }
+
+        .menu-subtitle {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #bac2de;
+            opacity: 0.7;
+        }
+
+        /* Contenedor del Juego */
+        #game-wrapper {
+            display: none;
+            position: relative;
+        }
+
+        #game-wrapper.active {
+            display: block;
+        }
+
         #game-container {
             position: relative;
-            width: 800px;
-            height: 350px;
-            background: #1e1e2e;
-            border: 3px solid #89b4fa;
-            border-radius: 12px;
-            box-shadow: 0 0 25px rgba(137, 180, 250, 0.4);
+            width: 900px;
+            height: 400px;
+            background: linear-gradient(180deg, #1e1e2e 0%, #252538 100%);
+            border: 4px solid #89b4fa;
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(137, 180, 250, 0.3), inset 0 0 60px rgba(0, 0, 0, 0.5);
             overflow: hidden;
+        }
+
+        /* Estrellas en fondo del juego */
+        .game-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.8;
         }
 
         #ground {
             position: absolute;
-            bottom: 30px;
+            bottom: 40px;
             width: 200%;
-            height: 4px;
-            /* Suelo estilo cyberpunk con movimiento */
-            background: repeating-linear-gradient(90deg, #89b4fa, #89b4fa 20px, transparent 20px, transparent 40px);
-            animation: moveGround 0.8s linear infinite;
+            height: 6px;
+            background: repeating-linear-gradient(90deg, #a6e3a1, #a6e3a1 30px, transparent 30px, transparent 60px);
+            animation: moveGround 0.6s linear infinite;
         }
 
         @keyframes moveGround {
             from { transform: translateX(0); }
-            to { transform: translateX(-40px); }
+            to { transform: translateX(-60px); }
         }
 
+        /* Dino Pixel Art con SVG */
         #player {
             position: absolute;
-            left: 60px;
-            bottom: 34px;
-            font-size: 50px;
-            user-select: none;
-            filter: drop-shadow(0 0 8px rgba(166, 227, 161, 0.8));
+            left: 80px;
+            bottom: 46px;
+            width: 60px;
+            height: 60px;
             z-index: 10;
+            transition: transform 0.1s;
+        }
+
+        #player.jumping {
+            transform: rotate(-15deg) scale(1.1);
+        }
+
+        .dino-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 12px rgba(166, 227, 161, 0.9));
         }
 
         .obstacle {
             position: absolute;
-            bottom: 34px;
-            font-size: 45px;
-            user-select: none;
-            filter: drop-shadow(0 0 5px rgba(243, 139, 168, 0.8));
+            bottom: 46px;
+            width: 50px;
+            height: 50px;
+            z-index: 5;
+        }
+
+        .cactus-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 10px rgba(243, 139, 168, 0.9));
         }
 
         #score {
             position: absolute;
-            top: 20px;
-            right: 25px;
-            font-size: 22px;
-            font-weight: bold;
+            top: 25px;
+            right: 30px;
+            font-size: 18px;
             color: #a6e3a1;
-            text-shadow: 0 0 10px rgba(166, 227, 161, 0.6);
+            text-shadow: 0 0 15px rgba(166, 227, 161, 0.8);
+            z-index: 20;
+        }
+
+        #lives {
+            position: absolute;
+            top: 25px;
+            left: 30px;
+            font-size: 18px;
+            color: #f38ba8;
+            text-shadow: 0 0 15px rgba(243, 139, 168, 0.8);
+            z-index: 20;
+        }
+
+        .heart {
+            color: #f38ba8;
+            margin-right: 5px;
+        }
+
+        .heart.lost {
+            opacity: 0.3;
+            text-shadow: none;
         }
 
         #instructions {
             position: absolute;
-            bottom: 40px;
+            bottom: 50px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 14px;
+            font-size: 10px;
             color: #bac2de;
-            opacity: 0.8;
-            animation: blink 1.5s infinite;
+            opacity: 0.9;
+            animation: blink 1s infinite;
+            text-align: center;
+            z-index: 20;
         }
 
-        @keyframes blink { 50% { opacity: 0.3; } }
+        @keyframes blink { 50% { opacity: 0.4; } }
 
+        /* Efecto de daño */
+        .damage-flash {
+            animation: damageFlash 0.3s;
+        }
+
+        @keyframes damageFlash {
+            0%, 100% { filter: none; }
+            50% { filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); }
+        }
+
+        /* Pantalla de Victoria */
         #surprise-screen {
             display: none;
             position: fixed;
@@ -96,52 +257,166 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
+            background: radial-gradient(ellipse at center, #0d1117 0%, #000 100%);
             justify-content: center;
             align-items: center;
             flex-direction: column;
             z-index: 1000;
+            overflow: hidden;
         }
 
         #surprise-screen.active {
             display: flex;
         }
 
+        /* Partículas de victoria */
+        .victory-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .victory-particle.green { background: #a6e3a1; box-shadow: 0 0 10px #a6e3a1; }
+        .victory-particle.yellow { background: #f9e2af; box-shadow: 0 0 10px #f9e2af; }
+        .victory-particle.cyan { background: #89b4fa; box-shadow: 0 0 10px #89b4fa; }
+
+        #ascii-container {
+            position: relative;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(166, 227, 161, 0.1), rgba(137, 180, 250, 0.1));
+            border: 3px solid #a6e3a1;
+            border-radius: 20px;
+            box-shadow: 0 0 60px rgba(166, 227, 161, 0.4), inset 0 0 40px rgba(166, 227, 161, 0.05);
+            animation: containerGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes containerGlow {
+            0%, 100% { box-shadow: 0 0 60px rgba(166, 227, 161, 0.4), inset 0 0 40px rgba(166, 227, 161, 0.05); }
+            50% { box-shadow: 0 0 80px rgba(166, 227, 161, 0.6), inset 0 0 50px rgba(166, 227, 161, 0.1); }
+        }
+
         #ascii-art {
             color: #a6e3a1;
-            font-size: 18px;
-            line-height: 1.2;
-            font-weight: bold;
-            text-shadow: 0 0 8px #a6e3a1;
+            font-size: 14px;
+            line-height: 1.3;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 15px #a6e3a1, 0 0 30px rgba(166, 227, 161, 0.5);
+            white-space: pre;
+            text-align: center;
         }
 
         #birthday-message {
             color: #f9e2af;
-            font-size: 45px;
-            margin-top: 40px;
+            font-size: 32px;
+            margin-top: 50px;
             text-align: center;
-            text-shadow: 0 0 20px rgba(249, 226, 175, 0.8);
-            animation: pulse 2s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(249, 226, 175, 0.9), 4px 4px 0 rgba(0,0,0,0.5);
+            animation: messagePulse 2s ease-in-out infinite;
+            font-family: 'Press Start 2P', cursive;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        @keyframes messagePulse {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 30px rgba(249, 226, 175, 0.9), 4px 4px 0 rgba(0,0,0,0.5); }
+            50% { transform: scale(1.05); text-shadow: 0 0 50px rgba(249, 226, 175, 1), 4px 4px 0 rgba(0,0,0,0.5); }
+        }
+
+        /* Decoración de confeti */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall 4s linear infinite;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Indicador de timing */
+        #timing-display {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: #89b4fa;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #timing-display.visible {
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <div id="ground"></div>
-        <div id="player">🦖</div>
-        <div id="score">PUNTOS: 0</div>
-        <div id="instructions">Presiona ESPACIO o Haz Clic para saltar</div>
+    <!-- Partículas de fondo -->
+    <div id="particles"></div>
+
+    <!-- Menú Principal -->
+    <div id="menu-screen">
+        <div class="menu-title">ДИНО РАН</div>
+        <button class="menu-btn" id="play-btn">ГРАТИ</button>
+        <div class="menu-subtitle">Натисніть ПРОБІЛ або КЛІК для стрибка</div>
     </div>
 
+    <!-- Juego -->
+    <div id="game-wrapper">
+        <div id="game-container">
+            <!-- Estrellas de fondo -->
+            <div id="stars-container"></div>
+            <div id="ground"></div>
+            
+            <!-- Dino SVG -->
+            <div id="player">
+                <svg class="dino-svg" viewBox="0 0 60 60">
+                    <!-- Cuerpo -->
+                    <rect x="15" y="20" width="30" height="25" fill="#a6e3a1"/>
+                    <rect x="10" y="25" width="10" height="20" fill="#a6e3a1"/>
+                    <rect x="35" y="15" width="15" height="20" fill="#a6e3a1"/>
+                    <!-- Cabeza -->
+                    <rect x="40" y="10" width="15" height="15" fill="#a6e3a1"/>
+                    <!-- Ojo -->
+                    <rect x="48" y="13" width="4" height="4" fill="#1e1e2e"/>
+                    <rect x="50" y="14" width="2" height="2" fill="#fff"/>
+                    <!-- Dientes/pico -->
+                    <rect x="52" y="20" width="3" height="3" fill="#f9e2af"/>
+                    <rect x="55" y="18" width="3" height="3" fill="#f9e2af"/>
+                    <!-- Patas -->
+                    <rect x="18" y="45" width="8" height="10" fill="#a6e3a1"/>
+                    <rect x="34" y="45" width="8" height="10" fill="#a6e3a1"/>
+                    <!-- Garras -->
+                    <rect x="18" y="52" width="2" height="3" fill="#1e1e2e"/>
+                    <rect x="24" y="52" width="2" height="3" fill="#1e1e2e"/>
+                    <rect x="34" y="52" width="2" height="3" fill="#1e1e2e"/>
+                    <rect x="40" y="52" width="2" height="3" fill="#1e1e2e"/>
+                    <!-- Cola -->
+                    <rect x="5" y="30" width="10" height="8" fill="#a6e3a1"/>
+                    <rect x="2" y="32" width="5" height="4" fill="#a6e3a1"/>
+                    <!-- Espinas -->
+                    <rect x="20" y="17" width="4" height="3" fill="#89b4fa"/>
+                    <rect x="28" y="15" width="4" height="3" fill="#89b4fa"/>
+                    <rect x="36" y="17" width="4" height="3" fill="#89b4fa"/>
+                </svg>
+            </div>
+            
+            <div id="lives">
+                <span class="heart">♥</span><span class="heart">♥</span><span class="heart">♥
+            </div>
+            <div id="score">ОЧКИ: 0</div>
+            <div id="instructions">ПРОБІЛ або КЛІК для стрибка</div>
+            <div id="timing-display"></div>
+        </div>
+    </div>
+
+    <!-- Pantalla Victoria -->
     <div id="surprise-screen">
+        <div id="ascii-container">
 <pre id="ascii-art">
-                                                   ____
+                                                  ____
        ___                                      .-~. /_"-._
       `-._~-.                                  / /_ "~o\  :Y
           \  \                                / : \~x.  ` ')
@@ -149,10 +424,9 @@
           /   !                        _.--~T : l  l<  /.-~
          /   /                 ____.--~ .   ` l /~\ \<|Y
         /   /             .-~~"        /| .    ',-~\ \L|
-       /   /             /     .^   \ Y~Y \.^>/l_   "--'
-      /   Y           .-"(  .  l__  j_j l_/ /~_.-~    .
+       /   Y           .-"(  .  l__  j_j l_/ /~_.-~    .
      Y    l          /    \  )    ~~~." / `/"~ / \.__/l_
-     |     \     _.-"      ~-{__     l  :  l._Z~-.___.--~
+     |     \     _."      ~-{__     l  :  l._Z~-.___.--~
      |      ~---~           /   ~~"---\_  ' __[>
      l  .                _.^   ___     _>-y~
       \  \     .      .-~   .-~   ~>--"  /
@@ -164,30 +438,70 @@
                             /,`--'~\--'~\
                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 </pre>
-        <div id="birthday-message">З днем народження, Yeva!</div>
+        </div>
+        <div id="birthday-message">З днем народження, Єво!</div>
     </div>
 
     <script>
+        // Elementos del DOM
+        const menuScreen = document.getElementById('menu-screen');
+        const gameWrapper = document.getElementById('game-wrapper');
+        const playBtn = document.getElementById('play-btn');
         const player = document.getElementById('player');
         const gameContainer = document.getElementById('game-container');
         const scoreElement = document.getElementById('score');
+        const livesElement = document.getElementById('lives');
         const surpriseScreen = document.getElementById('surprise-screen');
         const ground = document.getElementById('ground');
+        const timingDisplay = document.getElementById('timing-display');
+        const starsContainer = document.getElementById('stars-container');
 
-        let playerY = 0;
+        // Variables del juego
+        let playerY = 46;
         let velocityY = 0;
         let isJumping = false;
         let score = 0;
         let framesCount = 0;
-        let gameRunning = true;
+        let gameRunning = false;
         let obstacles = [];
         let audioContext = null;
         let hasInteracted = false;
+        let lives = 3;
+        let invulnerable = false;
+        let keyPressStart = 0;
+        let lastKeyPressTime = 0;
 
-        const gravity = 0.7; // Físicas ajustadas para un salto más natural
-        const jumpPower = -14;
-        const groundY = 34;
+        const gravity = 0.7;
+        const jumpPower = -15;
+        const groundY = 46;
+        const maxLives = 3;
 
+        // Crear partículas de fondo
+        function createBackgroundParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 10 + 's';
+                p.style.animationDuration = (8 + Math.random() * 6) + 's';
+                container.appendChild(p);
+            }
+        }
+
+        // Crear estrellas en el juego
+        function createGameStars() {
+            for (let i = 0; i < 30; i++) {
+                const star = document.createElement('div');
+                star.className = 'game-star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 60 + '%';
+                star.style.opacity = Math.random() * 0.8 + 0.2;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Audio
         function initAudio() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -197,139 +511,286 @@
         function playNote(frequency, duration, startTime) {
             const osc = audioContext.createOscillator();
             const gain = audioContext.createGain();
-            
-            osc.type = 'square'; // Sonido 8-bit retro
+            osc.type = 'square';
             osc.frequency.value = frequency;
-            
             osc.connect(gain);
             gain.connect(audioContext.destination);
-            
             osc.start(startTime);
-            gain.gain.setValueAtTime(0.1, startTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration - 0.05);
+            gain.gain.setValueAtTime(0.12, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration - 0.03);
             osc.stop(startTime + duration);
         }
 
         function playJurassicTheme() {
             if (!audioContext) return;
-            
             const now = audioContext.currentTime;
-            const short = 0.25;
-            const medium = 0.5;
-            const long = 0.9;
-            const pause = 0.05;
-            
             const notes = [
-                { freq: 466.16, dur: short }, // Bb4
-                { freq: 440.00, dur: short }, // A4
-                { freq: 466.16, dur: medium },// Bb4
-                { freq: 349.23, dur: long },  // F4
-                { freq: 311.13, dur: long }   // Eb4
+                { freq: 466.16, dur: 0.3 },
+                { freq: 440.00, dur: 0.3 },
+                { freq: 466.16, dur: 0.6 },
+                { freq: 349.23, dur: 1.0 },
+                { freq: 311.13, dur: 1.0 }
             ];
-            
-            // Repetir el loop de audio 3 veces
-            for (let repeat = 0; repeat < 3; repeat++) {
-                let time = now + repeat * 2.8;
+            for (let repeat = 0; repeat < 4; repeat++) {
+                let time = now + repeat * 3.2;
                 notes.forEach(note => {
                     playNote(note.freq, note.dur, time);
-                    time += note.dur + pause;
+                    time += note.dur + 0.05;
                 });
             }
         }
 
-        function jump() {
+        function playJumpSound() {
+            if (!audioContext) return;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(200, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start();
+            gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.15);
+            osc.stop(audioContext.currentTime + 0.15);
+        }
+
+        function playDamageSound() {
+            if (!audioContext) return;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start();
+            gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+            osc.stop(audioContext.currentTime + 0.3);
+        }
+
+        // Iniciar juego
+        function startGame() {
+            initAudio();
+            hasInteracted = true;
+            menuScreen.classList.add('hidden');
+            gameWrapper.classList.add('active');
+            gameRunning = true;
+            createGameStars();
+            requestAnimationFrame(update);
+        }
+
+        // Saltar con timing
+        function jump(isKeyDown = true) {
             if (!hasInteracted) {
-                hasInteracted = true;
-                initAudio();
+                startGame();
+                return;
             }
-            
-            if (!isJumping && gameRunning) {
-                velocityY = jumpPower;
-                isJumping = true;
+
+            if (isKeyDown) {
+                keyPressStart = performance.now();
+                if (!isJumping && gameRunning && !invulnerable) {
+                    velocityY = jumpPower;
+                    isJumping = true;
+                    player.classList.add('jumping');
+                    playJumpSound();
+                }
+            } else {
+                const pressDuration = performance.now() - keyPressStart;
+                lastKeyPressTime = pressDuration;
+                showTiming(pressDuration);
             }
         }
 
+        function showTiming(ms) {
+            timingDisplay.textContent = `ЧАС: ${ms.toFixed(0)}мс`;
+            timingDisplay.classList.add('visible');
+            setTimeout(() => timingDisplay.classList.remove('visible'), 800);
+        }
+
+        // Crear obstáculo (cactus SVG)
         function createObstacle() {
             const obstacle = document.createElement('div');
             obstacle.className = 'obstacle';
-            obstacle.textContent = '🌵';
-            obstacle.style.left = '800px';
+            obstacle.innerHTML = `
+                <svg class="cactus-svg" viewBox="0 0 50 50">
+                    <!-- Tallo principal -->
+                    <rect x="20" y="15" width="10" height="35" fill="#f38ba8"/>
+                    <!-- Brazo izquierdo -->
+                    <rect x="8" y="22" width="12" height="6" fill="#f38ba8"/>
+                    <rect x="5" y="18" width="6" height="8" fill="#f38ba8"/>
+                    <!-- Brazo derecho -->
+                    <rect x="30" y="28" width="12" height="6" fill="#f38ba8"/>
+                    <rect x="39" y="24" width="6" height="8" fill="#f38ba8"/>
+                    <!-- Espinas -->
+                    <rect x="18" y="12" width="2" height="3" fill="#1e1e2e"/>
+                    <rect x="25" y="10" width="2" height="3" fill="#1e1e2e"/>
+                    <rect x="30" y="14" width="2" height="3" fill="#1e1e2e"/>
+                    <rect x="6" y="16" width="2" height="2" fill="#1e1e2e"/>
+                    <rect x="41" y="22" width="2" height="2" fill="#1e1e2e"/>
+                </svg>
+            `;
+            obstacle.style.left = '900px';
             gameContainer.appendChild(obstacle);
-            obstacles.push({
-                element: obstacle,
-                x: 800
+            obstacles.push({ element: obstacle, x: 900 });
+        }
+
+        // Colisión
+        function checkCollision(playerRect, obstacleRect) {
+            const padding = 12;
+            return playerRect.left < obstacleRect.right - padding &&
+                   playerRect.right > obstacleRect.left + padding &&
+                   playerRect.bottom > obstacleRect.top + padding;
+        }
+
+        // Daño y vidas
+        function takeDamage() {
+            if (invulnerable || lives <= 0) return;
+            lives--;
+            playDamageSound();
+            updateLivesDisplay();
+            invulnerable = true;
+            gameContainer.classList.add('damage-flash');
+            
+            setTimeout(() => {
+                invulnerable = false;
+                gameContainer.classList.remove('damage-flash');
+            }, 1500);
+
+            if (lives <= 0) {
+                gameOver();
+            }
+        }
+
+        function updateLivesDisplay() {
+            const hearts = livesElement.querySelectorAll('.heart');
+            hearts.forEach((h, i) => {
+                h.classList.toggle('lost', i >= lives);
             });
         }
 
-        function checkCollision(playerRect, obstacleRect) {
-            // Hitboxes ajustadas para que no sea injusto
-            return playerRect.left < obstacleRect.right - 15 &&
-                   playerRect.right > obstacleRect.left + 15 &&
-                   playerRect.bottom > obstacleRect.top + 15;
+        function gameOver() {
+            score = 0;
+            lives = maxLives;
+            updateLivesDisplay();
+            scoreElement.textContent = 'ОЧКИ: 0';
+            // Flash de game over
+            gameContainer.style.filter = 'grayscale(100%) brightness(0.3)';
+            setTimeout(() => {
+                gameContainer.style.filter = '';
+            }, 500);
         }
 
+        // Partículas de victoria
+        function createVictoryParticles() {
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const p = document.createElement('div');
+                    const colors = ['green', 'yellow', 'cyan'];
+                    p.className = `victory-particle ${colors[Math.floor(Math.random() * 3)]}`;
+                    p.style.left = Math.random() * 100 + '%';
+                    p.style.top = Math.random() * 100 + '%';
+                    p.style.animation = `none`;
+                    surpriseScreen.appendChild(p);
+                    
+                    // Animación personalizada
+                    const angle = Math.random() * Math.PI * 2;
+                    const velocity = 2 + Math.random() * 4;
+                    let x = 0, y = 0;
+                    let opacity = 1;
+                    
+                    const animate = () => {
+                        x += Math.cos(angle) * velocity;
+                        y += Math.sin(angle) * velocity;
+                        opacity -= 0.015;
+                        p.style.transform = `translate(${x}px, ${y}px)`;
+                        p.style.opacity = opacity;
+                        
+                        if (opacity > 0) requestAnimationFrame(animate);
+                        else p.remove();
+                    };
+                    requestAnimationFrame(animate);
+                }, i * 50);
+            }
+        }
+
+        // Confeti
+        function createConfetti() {
+            const colors = ['#a6e3a1', '#f9e2af', '#89b4fa', '#f38ba8', '#cba6f7'];
+            for (let i = 0; i < 50; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.background = colors[Math.floor(Math.random() * colors.length)];
+                c.style.left = Math.random() * 100 + '%';
+                c.style.animationDelay = Math.random() * 2 + 's';
+                c.style.animationDuration = (3 + Math.random() * 2) + 's';
+                surpriseScreen.appendChild(c);
+            }
+        }
+
+        // Victoria
         function triggerSurprise() {
             gameRunning = false;
-            ground.style.animation = 'none'; // Detener el suelo
-            gameContainer.style.display = 'none';
+            ground.style.animation = 'none';
+            gameWrapper.style.display = 'none';
             surpriseScreen.classList.add('active');
             playJurassicTheme();
+            createVictoryParticles();
+            createConfetti();
         }
 
+        // Loop principal
         function update() {
             if (!gameRunning) return;
 
-            // Lógica de salto y gravedad
+            // Física de salto
             if (isJumping) {
                 velocityY += gravity;
                 playerY -= velocityY;
-                
                 if (playerY <= groundY) {
                     playerY = groundY;
                     velocityY = 0;
                     isJumping = false;
+                    player.classList.remove('jumping');
                 }
-                
                 player.style.bottom = playerY + 'px';
             }
 
-            // Generación de obstáculos (menos frecuente para que sea un reto suave)
-            if (Math.random() < 0.015 && obstacles.length < 2) {
+            // Generar obstáculos
+            if (Math.random() < 0.012 && obstacles.length < 2) {
                 createObstacle();
             }
 
             const playerRect = player.getBoundingClientRect();
-            
+
+            // Actualizar obstáculos
             for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].x -= 7; // Velocidad del juego
+                obstacles[i].x -= 6;
                 obstacles[i].element.style.left = obstacles[i].x + 'px';
-                
                 const obstacleRect = obstacles[i].element.getBoundingClientRect();
-                
-                // Si choca, reiniciar puntaje
+
                 if (checkCollision(playerRect, obstacleRect)) {
-                    score = 0;
-                    scoreElement.textContent = 'PUNTOS: ' + score;
+                    takeDamage();
                     obstacles[i].element.remove();
                     obstacles.splice(i, 1);
                     continue;
                 }
-                
-                // Eliminar obstáculos que salen de pantalla
-                if (obstacles[i].x < -50) {
+
+                if (obstacles[i].x < -60) {
                     obstacles[i].element.remove();
                     obstacles.splice(i, 1);
                 }
             }
 
-            // Incremento de puntaje controlado (1 punto cada 5 frames)
+            // Puntuación
             framesCount++;
             if (framesCount % 5 === 0) {
                 score++;
-                scoreElement.textContent = 'PUNTOS: ' + score;
+                scoreElement.textContent = 'ОЧКИ: ' + score;
             }
 
-            // Disparador de la sorpresa final
+            // Victoria
             if (score >= 200) {
                 triggerSurprise();
                 return;
@@ -338,21 +799,34 @@
             requestAnimationFrame(update);
         }
 
-        // Controles
+        // Eventos
+        playBtn.addEventListener('click', startGame);
+
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
-                jump();
+                if (e.repeat) return;
+                jump(true);
             }
         });
 
-        document.addEventListener('mousedown', jump);
-        document.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            jump();
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                jump(false);
+            }
         });
 
-        requestAnimationFrame(update);
+        document.addEventListener('mousedown', () => jump(true));
+        document.addEventListener('mouseup', () => jump(false));
+        
+        document.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            jump(true);
+        });
+        document.addEventListener('touchend', () => jump(false));
+
+        // Inicializar
+        createBackgroundParticles();
     </script>
 </body>
 </html>
