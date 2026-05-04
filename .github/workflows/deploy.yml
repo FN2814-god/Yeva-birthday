@@ -35,7 +35,6 @@ jobs:
     - name: Copy assets to build
       run: |
         cp -r Assets build/web/
-        cp pythons.js build/web/
         cp .nojekyll build/web/
         ls -la build/web/
         ls -la build/web/Assets/

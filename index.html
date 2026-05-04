@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval' 'unsafe-inline' blob: data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: data:; worker-src 'self' blob:; connect-src 'self' blob: data:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: filesystem:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: 'wasm-unsafe-eval'; worker-src * 'self' blob: data:; connect-src * 'self' blob: data:; img-src * 'self' data: blob:;">
     <title>Happy Birthday Yeva!</title>
     <style>
         body {
@@ -45,7 +45,7 @@
     <div id="canvas"></div>
     <div id="loading" class="loading">Loading... Please wait</div>
 
-    <script src="pythons.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pygbag@0.7.2/pythons.js" crossorigin="anonymous"></script>
     <script type="text/python" src="main.py" async></script>
     <script>
         window.addEventListener('load', () => {
