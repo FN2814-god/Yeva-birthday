@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Yeva!</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #202020;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: sans-serif;
+        }
+        #canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        canvas {
+            image-rendering: pixelated;
+            border: 2px solid #fff;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="loading" class="loading">Loading... Please wait</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/pygbag@0.7.2/pythons.js"></script>
+    <script type="text/python" src="main.py" async></script>
+    <script>
+        window.addEventListener('load', () => {
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
