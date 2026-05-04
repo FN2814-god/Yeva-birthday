@@ -223,14 +223,57 @@ async def main():
         if points >= 200 and not celebrating_birthday:
             celebrating_birthday = True
             game_speed = 0  # Stop movement
-            # Try to play birthday music
+            # Play Jurassic Park-style beep sound (synthesized with pygame)
             try:
                 if not birthday_music_playing:
-                    pygame.mixer.music.load("grabacion_guitarra.mp3")
-                    pygame.mixer.music.play(-1)  # Loop forever
+                    # Create a simple beep using pygame
+                    sample_rate = 44100
+                    duration = 150  # milliseconds
+                    
+                    # Simple square wave beep - works in both desktop and web
+                    beep_sound = None
+                    try:
+                        # Try to load a simple generated sound
+                        import array
+                        # Create a simple square wave
+                        sample_size = int(sample_rate * duration / 1000)
+                        sound_data = array.array('h')  # signed short
+                        
+                        frequency = 440  # A4
+                        period = int(sample_rate / frequency)
+                        
+                        for i in range(sample_size):
+                            # Square wave: high or low
+                            if (i % period) < (period // 2):
+                                sound_data.append(8000)   # High
+                            else:
+                                sound_data.append(-8000)  # Low
+                        
+                        # Create stereo sound (duplicate channel)
+                        stereo_data = array.array('h')
+                        for sample in sound_data:
+                            stereo_data.append(sample)  # Left
+                            stereo_data.append(sample)  # Right
+                        
+                        beep_sound = pygame.mixer.Sound(buffer=stereo_data.tobytes())
+                        beep_sound.set_volume(0.5)
+                    except:
+                        # Fallback: try system beep or skip
+                        pass
+                    
+                    if beep_sound:
+                        # Play Jurassic Park rhythm: beep-beep... beep-beep
+                        beep_sound.play()
+                        pygame.time.delay(200)
+                        beep_sound.play()
+                        pygame.time.delay(600)
+                        beep_sound.play()
+                        pygame.time.delay(200)
+                        beep_sound.play()
+                    
                     birthday_music_playing = True
             except Exception as e:
-                print(f"Could not load music: {e}")
+                print(f"Audio error: {e}")
 
         text = font.render("Points: " + str(points), True, (0, 0, 0))
         textRect = text.get_rect()

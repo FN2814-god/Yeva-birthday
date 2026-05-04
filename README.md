@@ -25,11 +25,7 @@ Este proyecto está configurado para desplegar automáticamente en GitHub Pages 
 - **Sorpresa de cumpleaños** al llegar a 200 puntos:
   - Pantalla negra con arte ASCII de un Spinosaurus con gorrito de fiesta 🎉
   - Mensaje "З днем народження, Yeva!" en ucraniano
-  - Música de guitarra en bucle (archivo `grabacion_guitarra.mp3`)
-
-## Archivos necesarios
-
-Para que la música funcione, asegúrate de agregar el archivo `grabacion_guitarra.mp3` en la raíz del repositorio antes de hacer deploy.
+  - Sonido tipo "beep-beep... beep-beep" estilo Jurassic Park 🎵
 
 ## Estructura del proyecto
 
