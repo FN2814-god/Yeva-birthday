@@ -2,58 +2,505 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: filesystem:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: 'wasm-unsafe-eval'; worker-src * 'self' blob: data:; connect-src * 'self' blob: data:; img-src * 'self' data: blob:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Happy Birthday Yeva!</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background: #202020;
-            overflow: hidden;
+            box-sizing: border-box;
+        }
+        body {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: sans-serif;
+            background: #f7f7f7;
+            font-family: 'Courier New', monospace;
         }
-        #canvas {
+        #gameCanvas {
+            border: 2px solid #333;
+            background: white;
+        }
+        #menu {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        canvas {
-            image-rendering: pixelated;
-            border: 2px solid #fff;
-            box-shadow: 0 0 20px rgba(255,255,255,0.3);
-        }
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 24px;
             text-align: center;
-            z-index: 100;
+            color: #333;
+        }
+        #menu h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #menu p {
+            font-size: 16px;
+            color: #666;
+        }
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
-    <div id="canvas"></div>
-    <div id="loading" class="loading">Loading... Please wait</div>
+    <canvas id="gameCanvas" width="1100" height="600"></canvas>
+    <div id="menu">
+        <h1>Press SPACE to Start</h1>
+        <p>↑ Jump | ↓ Duck</p>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/pygbag@0.7.2/pythons.js" crossorigin="anonymous"></script>
-    <script type="text/python" src="main.py" async></script>
     <script>
-        window.addEventListener('load', () => {
-            const loading = document.getElementById('loading');
-            if (loading) {
-                loading.style.display = 'none';
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const menu = document.getElementById('menu');
+
+        // Game state
+        let gameState = 'menu'; // menu, playing, gameover, birthday
+        let gameSpeed = 8;
+        let score = 0;
+        let deathCount = 0;
+        let celebratingBirthday = false;
+        let birthdayMusicPlayed = false;
+
+        // Dinosaur
+        const dino = {
+            x: 80,
+            y: 310,
+            width: 44,
+            height: 46,
+            duckY: 340,
+            duckHeight: 30,
+            jumping: false,
+            ducking: false,
+            jumpVel: 0,
+            gravity: 0.6,
+            jumpPower: -12,
+            runFrame: 0,
+            runTimer: 0
+        };
+
+        // Obstacles
+        let obstacles = [];
+        let clouds = [];
+
+        // Ground
+        let groundX = 0;
+
+        // Input
+        const keys = {};
+        document.addEventListener('keydown', (e) => {
+            keys[e.code] = true;
+            if (gameState === 'menu' && e.code === 'Space') {
+                startGame();
+            } else if (gameState === 'gameover' && e.code === 'Space') {
+                resetGame();
             }
         });
+        document.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+        });
+
+        // Play Jurassic Park beep sound
+        function playJurassicBeep() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                function playBeep(delay) {
+                    setTimeout(() => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        
+                        osc.frequency.value = 440;
+                        osc.type = 'square';
+                        gain.gain.value = 0.1;
+                        
+                        osc.start();
+                        osc.stop(audioContext.currentTime + 0.15);
+                    }, delay);
+                }
+                
+                // Jurassic Park rhythm: beep-beep... beep-beep
+                playBeep(0);
+                playBeep(250);
+                playBeep(850);
+                playBeep(1100);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        function startGame() {
+            gameState = 'playing';
+            menu.classList.add('hidden');
+            score = 0;
+            gameSpeed = 8;
+            obstacles = [];
+            clouds = [];
+            celebratingBirthday = false;
+            birthdayMusicPlayed = false;
+            dino.y = 310;
+            dino.jumping = false;
+            dino.ducking = false;
+            dino.jumpVel = 0;
+            
+            // Initial clouds
+            for (let i = 0; i < 3; i++) {
+                clouds.push({
+                    x: 800 + i * 400,
+                    y: 50 + Math.random() * 50,
+                    width: 60,
+                    height: 20
+                });
+            }
+        }
+
+        function resetGame() {
+            gameState = 'menu';
+            menu.classList.remove('hidden');
+            menu.querySelector('h1').textContent = 'Press SPACE to Restart';
+        }
+
+        function drawDino() {
+            const x = dino.x;
+            const y = dino.ducking ? dino.duckY : dino.y;
+            const h = dino.ducking ? dino.duckHeight : dino.height;
+            const w = dino.ducking ? 58 : dino.width;
+
+            ctx.fillStyle = '#535353';
+            
+            if (dino.jumping) {
+                // Jump pose
+                ctx.fillRect(x, y, w, h);
+                // Eye
+                ctx.fillStyle = 'white';
+                ctx.fillRect(x + w - 10, y + 5, 6, 6);
+                ctx.fillStyle = 'black';
+                ctx.fillRect(x + w - 8, y + 7, 2, 2);
+                // Legs
+                ctx.fillStyle = '#535353';
+                ctx.fillRect(x + 5, y + h, 8, 12);
+                ctx.fillRect(x + 20, y + h, 8, 12);
+            } else if (dino.ducking) {
+                // Duck pose
+                ctx.fillRect(x, y, w, h);
+                // Eye
+                ctx.fillStyle = 'white';
+                ctx.fillRect(x + w - 10, y + 5, 6, 6);
+                ctx.fillStyle = 'black';
+                ctx.fillRect(x + w - 8, y + 7, 2, 2);
+                // Legs
+                ctx.fillStyle = '#535353';
+                dino.runTimer++;
+                if (dino.runTimer > 5) {
+                    dino.runFrame = 1 - dino.runFrame;
+                    dino.runTimer = 0;
+                }
+                if (dino.runFrame === 0) {
+                    ctx.fillRect(x + 10, y + h, 10, 8);
+                } else {
+                    ctx.fillRect(x + 25, y + h, 10, 8);
+                }
+            } else {
+                // Run pose
+                ctx.fillRect(x, y, w, h);
+                // Eye
+                ctx.fillStyle = 'white';
+                ctx.fillRect(x + w - 10, y + 5, 6, 6);
+                ctx.fillStyle = 'black';
+                ctx.fillRect(x + w - 8, y + 7, 2, 2);
+                // Legs animation
+                ctx.fillStyle = '#535353';
+                dino.runTimer++;
+                if (dino.runTimer > 5) {
+                    dino.runFrame = 1 - dino.runFrame;
+                    dino.runTimer = 0;
+                }
+                if (dino.runFrame === 0) {
+                    ctx.fillRect(x + 5, y + h, 10, 12);
+                    ctx.fillRect(x + 25, y + h - 5, 10, 8);
+                } else {
+                    ctx.fillRect(x + 5, y + h - 5, 10, 8);
+                    ctx.fillRect(x + 25, y + h, 10, 12);
+                }
+            }
+        }
+
+        function drawCactus(cactus) {
+            ctx.fillStyle = '#2d5a2d';
+            // Main body
+            ctx.fillRect(cactus.x + 10, cactus.y, 20, cactus.height);
+            // Arms
+            if (cactus.type === 0) {
+                ctx.fillRect(cactus.x, cactus.y + 10, 10, 8);
+                ctx.fillRect(cactus.x + 30, cactus.y + 20, 10, 8);
+            } else if (cactus.type === 1) {
+                ctx.fillRect(cactus.x, cactus.y + 20, 10, 8);
+                ctx.fillRect(cactus.x + 30, cactus.y + 10, 10, 8);
+            } else {
+                ctx.fillRect(cactus.x, cactus.y + 15, 10, 8);
+                ctx.fillRect(cactus.x + 30, cactus.y + 15, 10, 8);
+            }
+        }
+
+        function drawBird(bird) {
+            ctx.fillStyle = '#8B4513';
+            // Body
+            ctx.fillRect(bird.x, bird.y, 40, 30);
+            // Wings (animated)
+            bird.frameTimer = (bird.frameTimer || 0) + 1;
+            if (bird.frameTimer > 8) {
+                bird.wingFrame = 1 - (bird.wingFrame || 0);
+                bird.frameTimer = 0;
+            }
+            ctx.fillStyle = '#654321';
+            if (bird.wingFrame === 0) {
+                ctx.fillRect(bird.x + 5, bird.y - 10, 30, 10);
+            } else {
+                ctx.fillRect(bird.x + 5, bird.y + 30, 30, 10);
+            }
+            // Beak
+            ctx.fillStyle = '#FFA500';
+            ctx.fillRect(bird.x + 40, bird.y + 10, 10, 8);
+        }
+
+        function drawCloud(cloud) {
+            ctx.fillStyle = '#d3d3d3';
+            // Simple cloud shape
+            ctx.beginPath();
+            ctx.arc(cloud.x + 15, cloud.y + 15, 15, 0, Math.PI * 2);
+            ctx.arc(cloud.x + 35, cloud.y + 15, 18, 0, Math.PI * 2);
+            ctx.arc(cloud.x + 50, cloud.y + 15, 12, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawGround() {
+            ctx.strokeStyle = '#535353';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 380);
+            ctx.lineTo(canvas.width, 380);
+            ctx.stroke();
+            
+            // Ground texture lines
+            ctx.beginPath();
+            for (let i = 0; i < canvas.width + 100; i += 20) {
+                let x = (i + groundX) % (canvas.width + 100);
+                ctx.moveTo(x, 380);
+                ctx.lineTo(x - 10, 390);
+            }
+            ctx.stroke();
+        }
+
+        function drawScore() {
+            ctx.fillStyle = '#000';
+            ctx.font = '20px Arial';
+            ctx.fillText('Points: ' + score, 950, 40);
+        }
+
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+
+        function spawnObstacle() {
+            const type = Math.random();
+            if (type < 0.33) {
+                // Small cactus
+                obstacles.push({
+                    type: 'cactus',
+                    x: canvas.width,
+                    y: 330,
+                    width: 40,
+                    height: 40,
+                    cactusType: Math.floor(Math.random() * 3)
+                });
+            } else if (type < 0.66) {
+                // Large cactus
+                obstacles.push({
+                    type: 'cactus',
+                    x: canvas.width,
+                    y: 310,
+                    width: 50,
+                    height: 60,
+                    cactusType: Math.floor(Math.random() * 3)
+                });
+            } else {
+                // Bird
+                obstacles.push({
+                    type: 'bird',
+                    x: canvas.width,
+                    y: 250 + Math.random() * 60,
+                    width: 50,
+                    height: 30
+                });
+            }
+        }
+
+        function update() {
+            if (gameState !== 'playing') return;
+
+            // Update score and check birthday
+            score++;
+            if (score % 100 === 0) {
+                gameSpeed += 0.5;
+            }
+            
+            // Birthday trigger at 200 points
+            if (score >= 200 && !celebratingBirthday) {
+                celebratingBirthday = true;
+                gameState = 'birthday';
+                gameSpeed = 0;
+                if (!birthdayMusicPlayed) {
+                    playJurassicBeep();
+                    birthdayMusicPlayed = true;
+                }
+                return;
+            }
+
+            // Dino physics
+            if (keys['ArrowUp'] && !dino.jumping && !dino.ducking) {
+                dino.jumping = true;
+                dino.jumpVel = dino.jumpPower;
+            }
+            
+            dino.ducking = keys['ArrowDown'] && !dino.jumping;
+
+            if (dino.jumping) {
+                dino.y += dino.jumpVel;
+                dino.jumpVel += dino.gravity;
+                if (dino.y >= 310) {
+                    dino.y = 310;
+                    dino.jumping = false;
+                    dino.jumpVel = 0;
+                }
+            }
+
+            // Ground scroll
+            groundX -= gameSpeed;
+            if (groundX <= -20) groundX = 0;
+
+            // Update clouds
+            clouds.forEach(cloud => {
+                cloud.x -= gameSpeed * 0.3;
+                if (cloud.x < -100) {
+                    cloud.x = canvas.width + 100;
+                    cloud.y = 50 + Math.random() * 50;
+                }
+            });
+
+            // Spawn obstacles
+            if (obstacles.length === 0 || 
+                (obstacles.length < 3 && obstacles[obstacles.length - 1].x < canvas.width - 300)) {
+                if (Math.random() < 0.02) {
+                    spawnObstacle();
+                }
+            }
+
+            // Update obstacles
+            obstacles = obstacles.filter(obs => {
+                obs.x -= gameSpeed;
+                
+                // Check collision
+                const dinoRect = {
+                    x: dino.x,
+                    y: dino.ducking ? dino.duckY : dino.y,
+                    width: dino.ducking ? 58 : dino.width,
+                    height: dino.ducking ? dino.duckHeight : dino.height
+                };
+                
+                if (checkCollision(dinoRect, obs)) {
+                    gameState = 'gameover';
+                    deathCount++;
+                    setTimeout(() => {
+                        resetGame();
+                    }, 2000);
+                }
+                
+                return obs.x > -100;
+            });
+        }
+
+        function drawBirthday() {
+            // Black background
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // ASCII Art - Spinosaurus with party hat
+            ctx.fillStyle = '#0f0';
+            ctx.font = '16px Courier New';
+            const asciiArt = [
+                "               .  * .        ",
+                "            * / \\   *        ",
+                "             . /___\\ .       ",
+                "                |            ",
+                "          _/\\/\\/\\/\\/\\_       ",
+                "         /            \\  _   ",
+                "        /              \\/_)  ",
+                "       /               / /   ",
+                "      /               / /    ",
+                "     /               / / \\   ",
+                "    /   _     _     / /   \\ ",
+                "   /  /` \\   / \\   / /     //",
+                "  /  /    | |   \\ | /     // ",
+                " /  /     | |    \\|/____//  ",
+                "/__/      |_|               "
+            ];
+            
+            const startY = 80;
+            asciiArt.forEach((line, i) => {
+                ctx.fillText(line, canvas.width / 2 - 150, startY + i * 18);
+            });
+            
+            // Birthday message in yellow (Cyrillic)
+            ctx.fillStyle = '#ff0';
+            ctx.font = 'bold 36px Arial';
+            ctx.fillText('З днем народження, Yeva!', canvas.width / 2 - 200, startY + asciiArt.length * 18 + 50);
+        }
+
+        function draw() {
+            if (gameState === 'birthday') {
+                drawBirthday();
+                return;
+            }
+
+            // Clear canvas
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw ground
+            drawGround();
+
+            // Draw clouds
+            clouds.forEach(drawCloud);
+
+            // Draw dino
+            drawDino();
+
+            // Draw obstacles
+            obstacles.forEach(obs => {
+                if (obs.type === 'cactus') {
+                    obs.cactusType = obs.cactusType || 0;
+                    drawCactus(obs);
+                } else {
+                    drawBird(obs);
+                }
+            });
+
+            // Draw score
+            drawScore();
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        // Start loop
+        loop();
     </script>
 </body>
 </html>
